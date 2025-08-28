@@ -180,7 +180,7 @@ void StudentProfile::findAndProposeStudySessions(const StudentProfile& classmate
 }
 
 void StudentProfile::displayProposedSessions() const {
-    cout << "\n--- Proposed Study Sessions for " << studentName << " ---\n";
+    cout << "\n---Proposed Study Sessions for " << studentName << " ---\n";
     if (proposedSessions.empty()) {
         cout << "  (none)\n";
     } else {
