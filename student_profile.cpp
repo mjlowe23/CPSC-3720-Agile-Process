@@ -1,4 +1,38 @@
 #include "student_profile.h"
+#include <sstream>
+#include <iomanip>
+#include <cctype>
+
+// Parse "HH:MM" (24-hour) to minutes since midnight.
+// Returns true on success; minutes = [0, 1440).
+static bool parseHHMMtoMinutes(const std::string& s, int& minutes) {
+    // Enforce format HH:MM with leading zeros allowed (e.g., 08:05, 14:30)
+    if (s.size() != 5 || s[2] != ':' || !isdigit(s[0]) || !isdigit(s[1]) || !isdigit(s[3]) || !isdigit(s[4])) {
+        return false;
+    }
+    int hh = (s[0] - '0') * 10 + (s[1] - '0');
+    int mm = (s[3] - '0') * 10 + (s[4] - '0');
+    if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return false;
+    minutes = hh * 60 + mm;
+    return true;
+}
+
+// Convert minutes since midnight to "h:MM AM/PM"
+static std::string minutesTo12h(int minutes) {
+    minutes %= 24 * 60;
+    int hh24 = minutes / 60;
+    int mm = minutes % 60;
+    bool isPM = (hh24 >= 12);
+    int hh12 = hh24 % 12;
+    if (hh12 == 0) hh12 = 12;
+    std::ostringstream os;
+    os << hh12 << ":" << std::setw(2) << std::setfill('0') << mm << (isPM ? " PM" : " AM");
+    return os.str();
+}
+
+// Clamp/validate against availability window [08:00, 22:00]
+static constexpr int kOpenMin = 8 * 60;   // 480
+static constexpr int kCloseMin = 22 * 60; // 1320
 
 void StudentProfile::createProfile()  {
         cout << "Enter your name: ";
@@ -26,10 +60,46 @@ void StudentProfile::createProfile()  {
             TimeSlot slot;
             cout << "  Day (e.g., Mon, Tuesday): ";
             getline(cin, slot.day);
-            cout << "  Start time (24h e.g., 14:00): ";
-            getline(cin, slot.start);
-            cout << "  End time   (24h e.g., 16:00): ";
-            getline(cin, slot.end);
+
+            // Input & validate "HH:MM" 24h within 08:00–22:00 and start < end
+            int startMin, endMin;
+            while (true) {
+                std::cout << "  Start time (24h HH:MM, between 08:00 and 22:00): ";
+                std::getline(std::cin, slot.start);
+                if (!parseHHMMtoMinutes(slot.start, startMin)) {
+                    std::cout << "    ✗ Invalid time format. Use HH:MM (e.g., 08:30, 14:00).\n";
+                    continue;
+                }
+                if (startMin < kOpenMin || startMin > kCloseMin) {
+                    std::cout << "    ✗ Start time must be between 08:00 and 22:00.\n";
+                    continue;
+                }
+                break;
+            }
+
+            while (true) {
+                std::cout << "  End time   (24h HH:MM, no later than 22:00): ";
+                std::getline(std::cin, slot.end);
+                if (!parseHHMMtoMinutes(slot.end, endMin)) {
+                    std::cout << "    ✗ Invalid time format. Use HH:MM (e.g., 09:45, 21:15).\n";
+                    continue;
+                }
+                if (endMin < kOpenMin || endMin > kCloseMin) {
+                    std::cout << "    ✗ End time must be between 08:00 and 22:00.\n";
+                    continue;
+                }
+                if (endMin <= startMin) {
+                    std::cout << "    ✗ End time must be after start time.\n";
+                    continue;
+                }
+                break;
+        }
+
+
+            //cout << "  Start time (24h e.g., 14:00): ";
+            //getline(cin, slot.start);
+            //cout << "  End time   (24h e.g., 16:00): ";
+            //getline(cin, slot.end);
             availability.push_back(slot);
         }
 }
@@ -49,8 +119,15 @@ void StudentProfile::displayProfile() {
         } else {
             for (size_t i = 0; i < availability.size(); ++i) {
                 const auto& s = availability[i];
-                cout << "  " << (i + 1) << ". " << s.day
-                    << " " << s.start << " - " << s.end << "\n";
+                int startMin, endMin;
+                // If parsing ever fails (shouldn’t), just print raw.
+                if (parseHHMMtoMinutes(s.start, startMin) && parseHHMMtoMinutes(s.end, endMin)) {
+                    std::cout << "  " << (i + 1) << ". " << s.day
+                            << " " << minutesTo12h(startMin) << " - " << minutesTo12h(endMin) << "\n";
+                } else {
+                    std::cout << "  " << (i + 1) << ". " << s.day
+                            << " " << s.start << " - " << s.end << "\n";
+                }
             }
         }
  }
