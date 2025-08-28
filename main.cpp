@@ -25,6 +25,16 @@ int main() {
         studentProfiles[i].displayProfile();
     }
 
+    cout << "\nChecking study session proposals...\n";
+    if (studentProfiles.size() >= 2) {
+        studentProfiles[0].findAndProposeStudySessions(studentProfiles[1]);
+        studentProfiles[0].displayProposedSessions();
+
+        // Ask student 0 to confirm/decline
+        studentProfiles[0].reviewProposals();
+        studentProfiles[0].displayConfirmedSessions();
+    }
+
 return 0;
 
 }

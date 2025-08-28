@@ -139,3 +139,88 @@ void StudentProfile::addAvailability(const TimeSlot& slot) {
 const vector<TimeSlot>& StudentProfile::getAvailability() const {
     return availability;
 }
+
+void StudentProfile::findAndProposeStudySessions(const StudentProfile& classmate) {
+    bool found = false;
+
+    for (const auto& mySlot : availability) {
+        int myStart, myEnd;
+        if (!parseHHMMtoMinutes(mySlot.start, myStart) ||
+            !parseHHMMtoMinutes(mySlot.end, myEnd)) {
+            continue; // skip invalid
+        }
+
+        for (const auto& theirSlot : classmate.getAvailability()) {
+            if (mySlot.day != theirSlot.day) continue; // must be same day
+
+            int theirStart, theirEnd;
+            if (!parseHHMMtoMinutes(theirSlot.start, theirStart) ||
+                !parseHHMMtoMinutes(theirSlot.end, theirEnd)) {
+                continue; // skip invalid
+            }
+
+            // Calculate overlap
+            int overlapStart = max(myStart, theirStart);
+            int overlapEnd   = min(myEnd, theirEnd);
+
+            if (overlapStart < overlapEnd) {
+                string proposal = "Session with " + classmate.getName() +
+                                  " on " + mySlot.day +
+                                  " " + minutesTo12h(overlapStart) +
+                                  " - " + minutesTo12h(overlapEnd);
+                proposedSessions.push_back(proposal);
+                found = true;
+            }
+        }
+    }
+
+    if (!found) {
+        cout << "No overlapping availability with " << classmate.getName() << ".\n";
+    }
+}
+
+void StudentProfile::displayProposedSessions() const {
+    cout << "\n--- Proposed Study Sessions for " << studentName << " ---\n";
+    if (proposedSessions.empty()) {
+        cout << "  (none)\n";
+    } else {
+        for (size_t i = 0; i < proposedSessions.size(); ++i) {
+            cout << "  " << (i + 1) << ". " << proposedSessions[i] << "\n";
+        }
+    }
+}
+
+void StudentProfile::reviewProposals() {
+    if (proposedSessions.empty()) {
+        cout << studentName << " has no proposals to review.\n";
+        return;
+    }
+
+    cout << "\n--- Review Proposed Study Sessions for " << studentName << " ---\n";
+    for (size_t i = 0; i < proposedSessions.size(); ++i) {
+        cout << (i + 1) << ". " << proposedSessions[i] << "\n";
+        cout << "   Confirm this session? (y/n): ";
+        char choice;
+        cin >> choice;
+        cin.ignore();
+        if (choice == 'y' || choice == 'Y') {
+            confirmedSessions.push_back(proposedSessions[i]);
+            cout << "   ✓ Confirmed!\n";
+        } else {
+            cout << "   ✗ Declined.\n";
+        }
+    }
+    // After reviewing, clear proposals (optional, since they’ve been handled)
+    proposedSessions.clear();
+}
+
+void StudentProfile::displayConfirmedSessions() const {
+    cout << "\n--- Confirmed Study Sessions for " << studentName << " ---\n";
+    if (confirmedSessions.empty()) {
+        cout << "  (none)\n";
+    } else {
+        for (size_t i = 0; i < confirmedSessions.size(); ++i) {
+            cout << "  " << (i + 1) << ". " << confirmedSessions[i] << "\n";
+        }
+    }
+}
