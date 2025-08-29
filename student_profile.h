@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <cctype>
 using namespace std;
 
 struct TimeSlot {
@@ -41,6 +44,12 @@ public:
     bool removeCourse(const std::string& course);
     void clearAvailability();
 
+    // Add to student_profile.h (near bottom, after class)
+    bool parseHHMMtoMinutes(const std::string& s, int& minutes);
+    constexpr int kOpenMin = 8 * 60;
+    constexpr int kCloseMin = 22 * 60;
+
+    bool sharesCourseWith(const StudentProfile& other) const;
 
 };
 
