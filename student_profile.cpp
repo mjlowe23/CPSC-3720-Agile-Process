@@ -5,7 +5,7 @@
 
 // Parse "HH:MM" (24-hour) to minutes since midnight.
 // Returns true on success; minutes = [0, 1440).
-static bool parseHHMMtoMinutes(const std::string& s, int& minutes) {
+bool parseHHMMtoMinutes(const std::string& s, int& minutes) {
     // Enforce format HH:MM with leading zeros allowed (e.g., 08:05, 14:30)
     if (s.size() != 5 || s[2] != ':' || !isdigit(s[0]) || !isdigit(s[1]) || !isdigit(s[3]) || !isdigit(s[4])) {
         return false;
@@ -18,7 +18,7 @@ static bool parseHHMMtoMinutes(const std::string& s, int& minutes) {
 }
 
 // Convert minutes since midnight to "h:MM AM/PM"
-static std::string minutesTo12h(int minutes) {
+std::string minutesTo12h(int minutes) {
     minutes %= 24 * 60;
     int hh24 = minutes / 60;
     int mm = minutes % 60;
@@ -31,8 +31,8 @@ static std::string minutesTo12h(int minutes) {
 }
 
 // Clamp/validate against availability window [08:00, 22:00]
-static constexpr int kOpenMin = 8 * 60;   // 480
-static constexpr int kCloseMin = 22 * 60; // 1320
+constexpr int kOpenMin = 8 * 60;   // 480
+constexpr int kCloseMin = 22 * 60; // 1320
 
 void StudentProfile::createProfile()  {
         cout << "Enter your name: ";
@@ -140,6 +140,24 @@ const vector<TimeSlot>& StudentProfile::getAvailability() const {
     return availability;
 }
 
+void StudentProfile::addCourse(const std::string& course) {
+    courses.push_back(course);
+}
+
+bool StudentProfile::removeCourse(const std::string& course) {
+    for (auto it = courses.begin(); it != courses.end(); ++it) {
+        if (*it == course) {
+            courses.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+void StudentProfile::clearAvailability() {
+    availability.clear();
+}
+
 void StudentProfile::findAndProposeStudySessions(const StudentProfile& classmate) {
     bool found = false;
 
@@ -223,4 +241,15 @@ void StudentProfile::displayConfirmedSessions() const {
             cout << "  " << (i + 1) << ". " << confirmedSessions[i] << "\n";
         }
     }
+}
+
+bool StudentProfile::sharesCourseWith(const StudentProfile& other) const {
+    for (const auto& course : courses) {
+        for (const auto& otherCourse : other.courses) {
+            if (course == otherCourse) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

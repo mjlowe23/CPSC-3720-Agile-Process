@@ -37,6 +37,11 @@ public:
 
     string getName() const { return studentName; }
 
+    void addCourse(const std::string& course);
+    bool removeCourse(const std::string& course);
+    void clearAvailability();
+
+
 };
 
 #endif
