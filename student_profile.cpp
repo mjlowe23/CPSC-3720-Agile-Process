@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cctype>
+#include <algorithm>
 
 // Parse "HH:MM" (24-hour) to minutes since midnight.
 // Returns true on success; minutes = [0, 1440).
@@ -31,8 +32,8 @@ std::string minutesTo12h(int minutes) {
 }
 
 // Clamp/validate against availability window [08:00, 22:00]
-constexpr int kOpenMin = 8 * 60;   // 480
-constexpr int kCloseMin = 22 * 60; // 1320
+//constexpr int kOpenMin = 8 * 60;   // 480
+//constexpr int kCloseMin = 22 * 60; // 1320
 
 void StudentProfile::createProfile()  {
         cout << "Enter your name: ";

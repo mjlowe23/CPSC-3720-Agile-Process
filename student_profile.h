@@ -9,6 +9,13 @@
 #include <cctype>
 using namespace std;
 
+// Add to student_profile.h (near bottom, after class)
+bool parseHHMMtoMinutes(const std::string& s, int& minutes);
+std::string minutesTo12h(int minutes);
+inline constexpr int kOpenMin = 8 * 60;
+inline constexpr int kCloseMin = 22 * 60;
+
+
 struct TimeSlot {
     string day;
     string start;
@@ -43,11 +50,6 @@ public:
     void addCourse(const std::string& course);
     bool removeCourse(const std::string& course);
     void clearAvailability();
-
-    // Add to student_profile.h (near bottom, after class)
-    bool parseHHMMtoMinutes(const std::string& s, int& minutes);
-    constexpr int kOpenMin = 8 * 60;
-    constexpr int kCloseMin = 22 * 60;
 
     bool sharesCourseWith(const StudentProfile& other) const;
 
