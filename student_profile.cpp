@@ -131,6 +131,15 @@ void StudentProfile::displayProfile() {
                 }
             }
         }
+
+        cout << "Confirmed time slots:\n";
+        if (confirmedSessions.empty()) {
+            cout << "  (none)\n";
+        } else {
+            for (size_t i = 0; i < confirmedSessions.size(); ++i) {
+                std::cout << i << ". " << confirmedSessions[i];
+            }
+        }
  }
 
 void StudentProfile::addAvailability(const TimeSlot& slot) {

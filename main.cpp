@@ -95,19 +95,19 @@ void updateProfile(StudentProfile& student) {
     } while (choice != '5');
 }
 
-void searchClassmates(const StudentProfile& student, const vector<StudentProfile>& allStudents) {
+void searchClassmates(StudentProfile& student, vector<StudentProfile>& allStudents) {
     bool foundAny = false;
-    for (const auto& other : allStudents) {
+    for (auto& other : allStudents) {
         if (student.getName() == other.getName()) continue; // skip self
         if (student.sharesCourseWith(other)) {
             cout << "\nFound classmate: " << other.getName() << " who shares courses.\n";
-            StudentProfile temp = student; // copy for proposing sessions
-            temp.findAndProposeStudySessions(other);
-            temp.displayProposedSessions();
+            //StudentProfile temp = student; // copy for proposing sessions
+            student.findAndProposeStudySessions(other);
+            student.displayProposedSessions();
 
             // Optional: prompt to confirm
-            temp.reviewProposals();
-            temp.displayConfirmedSessions();
+            student.reviewProposals();
+            student.displayConfirmedSessions();
 
             foundAny = true;
         }
