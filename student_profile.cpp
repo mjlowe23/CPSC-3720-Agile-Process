@@ -137,7 +137,7 @@ void StudentProfile::displayProfile() {
             cout << "  (none)\n";
         } else {
             for (size_t i = 0; i < confirmedSessions.size(); ++i) {
-                std::cout << i << ". " << confirmedSessions[i];
+                std::cout << "   " << (i +1) << ". " << confirmedSessions[i] << "\n";
             }
         }
  }
